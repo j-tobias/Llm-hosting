@@ -41,7 +41,6 @@ async def recieve(data: dict):
 if __name__ == "__main__":
     import uvicorn
     from Model import LLM
-    import torch
 
     print("Step 1: Configure IP & Port")
     # Configure the API / Server
@@ -50,7 +49,6 @@ if __name__ == "__main__":
     
     print("Step 2: Start loading Model & Tokenizer")
     # Configure the Model
-    memory = torch.device("cpu")
     global Model
     Model = LLM()
 

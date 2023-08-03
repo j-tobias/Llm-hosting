@@ -4,14 +4,17 @@ from transformers import LlamaForCausalLM, LlamaTokenizer
 class LLM:
 
     def __init__ (self):
+        # retrieve the path to the model
         model_path = os.path.join(os.getcwd(), "Llama-2-7b-chat-hf")
+        # initiate the model and the tokenizer
         self.model = LlamaForCausalLM.from_pretrained(model_path)
         self.tokenizer = LlamaTokenizer.from_pretrained(model_path)
 
-        print(self.tokenizer.all_special_tokens, self.tokenizer.all_special_ids)
-
+        # create attributes for the Instruct and Context Tokens
         self.B_INST, self.E_INST = "[INST]", "[/INST]"
         self.B_CONT, self.E_CONT = "[CONTEXT]", "[/CONTEXT]"
+
+        # create the Default System Prompt
         B_SYS, E_SYS = "<<SYS>>\n", "\n<</SYS>>\n\n"
         DEFAULT_SYSTEM_PROMPT = """\
         You are a helpful, respectful and honest assistant. Always answer as helpfully as possible, while being safe. Your answers should not include any harmful, unethical, racist, sexist, toxic, dangerous, or illegal content. Please ensure that your responses are socially unbiased and positive in nature.
@@ -66,6 +69,7 @@ class LLM:
         # clean up the answer
         final_outputs = self.tokenizer.batch_decode(outputs, skip_special_tokens=True)[0]
         final_outputs = self.cut_off_text(final_outputs, '</s>')
-        final_outputs = self.remove_substring(final_outputs, prompt) 
+        final_outputs = self.remove_substring(final_outputs, prompt)
+        final_outputs = self.remove_substring(final_outputs, self.SYSTEM_PROMPT) 
 
         return final_outputs
