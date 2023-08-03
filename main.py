@@ -51,5 +51,6 @@ if __name__ == "__main__":
     # Configure the Model
     global Model
     Model = LLM()
+    
 
     uvicorn.run(app, host=ip, port=port_n)

@@ -71,5 +71,6 @@ class LLM:
         final_outputs = self.cut_off_text(final_outputs, '</s>')
         final_outputs = self.remove_substring(final_outputs, prompt)
         final_outputs = self.remove_substring(final_outputs, self.SYSTEM_PROMPT) 
+        
 
         return final_outputs
