@@ -13,6 +13,7 @@ class LLM:
         # create attributes for the Instruct and Context Tokens
         self.B_INST, self.E_INST = "[INST]", "[/INST]"
         self.B_CONT, self.E_CONT = "[CONTEXT]", "[/CONTEXT]"
+        self.B_SENT, self.E_SENT = "<s>","</s>"
 
         # create the Default System Prompt
         B_SYS, E_SYS = "<<SYS>>\n", "\n<</SYS>>\n\n"
@@ -23,7 +24,7 @@ class LLM:
 
         self.SYSTEM_PROMPT = B_SYS + DEFAULT_SYSTEM_PROMPT + E_SYS
     
-    def get_prompt(self, instruction):
+    def get_prompt(self, instruction) -> str:
         """
         Generates the Prompt which includes the System Prompt to guide the Models behaviour
         
@@ -32,6 +33,7 @@ class LLM:
         prompt_template =  self.B_INST + self.SYSTEM_PROMPT + instruction + self.E_INST
         return prompt_template
     
+    # NOT TESTED AND APPROVED YET
     def get_prompt_with_context(self, instruction, context):
         """
         Generates the Prompt which includes the System Prompt to guide the Models behaviour and also adds context
@@ -58,6 +60,13 @@ class LLM:
         """
         # get the prompt
         prompt = self.get_prompt(text) if context == None else self.get_prompt_with_context(text, context)
+
+        # For debugging
+        #print(30*"--")
+        #print("\nInput Prompt: ", prompt)
+        #print(30*"--")
+
+
         # get the input ids
         inputs = self.tokenizer(prompt, return_tensors="pt")
         # hand input over to model and generate the response
@@ -67,10 +76,27 @@ class LLM:
                                         pad_token_id=self.tokenizer.eos_token_id,
                                         )
         # clean up the answer
-        final_outputs = self.tokenizer.batch_decode(outputs, skip_special_tokens=True)[0]
-        final_outputs = self.cut_off_text(final_outputs, '</s>')
-        final_outputs = self.remove_substring(final_outputs, prompt)
-        final_outputs = self.remove_substring(final_outputs, self.SYSTEM_PROMPT) 
-        
+        decoded_outputs = self.tokenizer.batch_decode(outputs, skip_special_tokens=True)[0]
+
+        # For debugging
+        #print(30*"**")
+        #print("\nDecoded output: ", decoded_outputs)
+        #print(30*"**")
+
+        # Apparantely the model does not write <s> or </s> 
+        # so it has to be removed from the original prompt since otherwise the .replace() does not work
+        s_rem_prompt = prompt.replace(self.B_SENT,"")
+        s_rem_prompt = s_rem_prompt.replace(self.E_SENT,"")
+
+        # Here it is important that the substring appears 1:1 in the decoded outputs otherwise nothing will be replaced
+        final_outputs = self.remove_substring(decoded_outputs, s_rem_prompt)
+
+        # Might not be needed but sometimes the Model write whitespaces which looks a bit odd
+        final_outputs = final_outputs.strip()
+
+        # For debugging
+        #print(30*"__")
+        #print("\nOutput Text: ", final_outputs)
+        #print(30*"__")
 
         return final_outputs

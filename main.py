@@ -13,7 +13,7 @@ async def recieve(data: dict):
     """
     {
     "prompt":"Write a poem about a cat.",
-    "max_length": 30,
+    "response_length": 30,
     "context": ""
     }
     """
@@ -25,12 +25,12 @@ async def recieve(data: dict):
     prompt.strip()
 
     # retrieve the max length of the generated Text
-    max_len = data.get("max_length")
+    response_length = data.get("response_length")
 
     # get the context if there is one
     context = data.get("context")
 
-    response = Model.generate(prompt, max_len, context)
+    response = Model.generate(prompt, response_length, context)
     
     # return the generated text
     return response
